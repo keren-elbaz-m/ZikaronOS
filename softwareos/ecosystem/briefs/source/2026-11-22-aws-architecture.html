@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>זיכרון בסלון · AWS · ארכיטקטורה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="brief.css">
+<style>
+table.tiny { font-size: 10px; }
+table.tiny th { font-size: 9.5px; padding: 3px 5px; }
+table.tiny td { padding: 3px 5px; line-height: 1.3; }
+table.tiny td.mono { font-family: var(--mono); font-size: 9.5px; color: var(--ink); background: none; direction: ltr; text-align: left; white-space: nowrap; }
+table.env { font-size: 10.5px; }
+table.env td { padding: 5px 5px; }
+table.env td.mono { font-family: var(--mono); font-size: 10px; color: var(--ink); direction: ltr; text-align: left; white-space: nowrap; }
+tr.live td { background: var(--teal-soft); }
+tr.dead td { color: #8B93A3; }
+.cols3 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 10px; flex: 1; min-height: 0; }
+.mini h2 { font-size: 13px; padding-bottom: 3px; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>חשבון ה-<em>AWS</em> של זיכרון בסלון — מפה</h1>
+      <p class="sub">כל מה שיש בחשבון: Elastic Beanstalk, מסדי נתונים, הודעות, מסירה, רשת, אבטחה ושירותים גלובליים</p>
+    </div>
+    <div class="meta"><b>חשבון AWS יחיד</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 1 מתוך 3</div>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1240 470" role="img" aria-label="מפת חשבון ה-AWS של זיכרון בסלון">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1B2A4A"/></marker>
+        <marker id="ar-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C2741C"/></marker>
+        <marker id="ar-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#B4372C"/></marker>
+      </defs>
+      <!-- legend -->
+      <rect class="box main" x="20" y="8" width="22" height="12" rx="3"/><text class="s" x="48" y="18">live, serving traffic</text>
+      <rect class="box off" x="160" y="8" width="22" height="12" rx="3"/><text class="s" x="188" y="18">off for the season</text>
+      <rect class="box bad" x="300" y="8" width="22" height="12" rx="3"/><text class="s" x="328" y="18">risk or broken</text>
+      <rect class="box idle" x="430" y="8" width="22" height="12" rx="3"/><text class="s" x="458" y="18">unused or leftover</text>
+
+      <!-- region -->
+      <rect class="grp" x="20" y="32" width="960" height="432" rx="12"/>
+      <text class="g" x="36" y="458">eu-west-3 · Paris · everything that runs the system</text>
+
+      <!-- EB -->
+      <rect class="grp dash" x="36" y="46" width="600" height="192" rx="10" fill="#ffffff"/>
+      <text class="g" x="48" y="64">Elastic Beanstalk · application zikaron-basalon-be · 6 environments</text>
+      <rect class="box main" x="48" y="74" width="186" height="70" rx="7"/>
+      <text class="t" x="141" y="94" text-anchor="middle" style="font-size:11px">Zikaron-basalon-backend-env</text>
+      <text class="s" x="141" y="111" text-anchor="middle" style="font-weight:600;fill:#0F766E">LIVE · prod API</text>
+      <text class="s" x="141" y="126" text-anchor="middle">2 × t3.large · ALB · no WAF</text>
+      <text class="s" x="141" y="139" text-anchor="middle">prod.zikaronbasalon.com</text>
+      <rect class="box main" x="244" y="74" width="186" height="70" rx="7"/>
+      <text class="t" x="337" y="94" text-anchor="middle" style="font-size:11px">Zikaron-basalon-be-dev</text>
+      <text class="s" x="337" y="111" text-anchor="middle" style="font-weight:600;fill:#0F766E">LIVE · dev API</text>
+      <text class="s" x="337" y="126" text-anchor="middle">1 × t3.small · ALB · no WAF</text>
+      <text class="s" x="337" y="139" text-anchor="middle">dev.zikaronbasalon.com</text>
+      <rect class="box bad" x="440" y="74" width="186" height="70" rx="7" style="stroke-dasharray:4 3"/>
+      <text class="t" x="533" y="94" text-anchor="middle" style="font-size:11px">Zikaron-basalon-be-production</text>
+      <text class="lbl r" x="533" y="111" text-anchor="middle">no traffic · OWNS the prod DB</text>
+      <text class="s" x="533" y="126" text-anchor="middle">1 × t3.large · ALB + WAF</text>
+      <rect class="box bad" x="48" y="156" width="186" height="70" rx="7" style="stroke-dasharray:4 3"/>
+      <text class="t" x="141" y="176" text-anchor="middle" style="font-size:11px">Zikaron-basalon-be-development</text>
+      <text class="lbl r" x="141" y="193" text-anchor="middle">no traffic · OWNS the dev DB</text>
+      <text class="s" x="141" y="208" text-anchor="middle">1 × t3.small · ALB + WAF</text>
+      <rect class="box idle" x="244" y="156" width="186" height="70" rx="7"/>
+      <text class="t" x="337" y="176" text-anchor="middle" style="font-size:11px;fill:#6B7385">Zikaron-basalon-be-prod-new</text>
+      <text class="s" x="337" y="193" text-anchor="middle">dead · 0 servers · Python 3.8</text>
+      <text class="s" x="337" y="208" text-anchor="middle">its database was deleted</text>
+      <rect class="box idle" x="440" y="156" width="186" height="70" rx="7"/>
+      <text class="t" x="533" y="176" text-anchor="middle" style="font-size:11px;fill:#6B7385">infra-develop-zikaron</text>
+      <text class="s" x="533" y="193" text-anchor="middle">dead · Terragrunt, 2023</text>
+      <text class="s" x="533" y="208" text-anchor="middle">0 servers · NLB</text>
+
+      <!-- RDS -->
+      <rect class="grp dash" x="656" y="46" width="310" height="192" rx="10" fill="#ffffff"/>
+      <text class="g" x="668" y="64">RDS · PostgreSQL · 4 instances</text>
+      <rect class="box bad" x="668" y="74" width="142" height="70" rx="7"/>
+      <text class="t" x="739" y="95" text-anchor="middle" style="font-size:11.5px">Prod DB · PG 13</text>
+      <text class="s" x="739" y="112" text-anchor="middle">db.t3.medium</text>
+      <text class="s" x="739" y="126" text-anchor="middle">1-day backups</text>
+      <rect class="box idle" x="818" y="74" width="140" height="70" rx="7"/>
+      <text class="t" x="888" y="95" text-anchor="middle" style="font-size:11.5px">Green copy · PG 17</text>
+      <text class="s" x="888" y="112" text-anchor="middle">blue/green leftover</text>
+      <text class="s" x="888" y="126" text-anchor="middle">since Feb 2026</text>
+      <rect class="box main" x="668" y="156" width="142" height="70" rx="7"/>
+      <text class="t" x="739" y="177" text-anchor="middle" style="font-size:11.5px">Dev DB · PG 17</text>
+      <text class="s" x="739" y="194" text-anchor="middle">db.t3.small</text>
+      <rect class="box idle" x="818" y="156" width="140" height="70" rx="7"/>
+      <text class="t" x="888" y="177" text-anchor="middle" style="font-size:11.5px">Unused · PG 13</text>
+      <text class="s" x="888" y="194" text-anchor="middle">db.t3.medium</text>
+      <text class="s" x="888" y="208" text-anchor="middle">owned by backend-env</text>
+
+      <!-- messaging -->
+      <rect class="grp dash" x="36" y="250" width="600" height="118" rx="10" fill="#ffffff"/>
+      <text class="g" x="48" y="268">Messaging · scheduled jobs · Lambda</text>
+      <rect class="box" x="48" y="278" width="150" height="38" rx="6"/>
+      <text class="t" x="123" y="294" text-anchor="middle" style="font-size:11px">SQS email-sqs-queue</text>
+      <text class="s" x="123" y="308" text-anchor="middle">+ email-dlq</text>
+      <path class="e" d="M198 297 H216" marker-end="url(#ar)"/>
+      <rect class="box off" x="218" y="278" width="190" height="38" rx="6"/>
+      <text class="t" x="313" y="294" text-anchor="middle" style="font-size:11px">λ email-processor</text>
+      <text class="s" x="313" y="308" text-anchor="middle">→ SendGrid · send line off</text>
+      <rect class="box" x="48" y="324" width="150" height="38" rx="6"/>
+      <text class="t" x="123" y="340" text-anchor="middle" style="font-size:11px">Scheduler · prod</text>
+      <text class="s" x="123" y="354" text-anchor="middle">every 10 min (UTC)</text>
+      <path class="e r" d="M198 343 H216" marker-end="url(#ar-r)"/>
+      <rect class="box bad" x="218" y="324" width="190" height="38" rx="6"/>
+      <text class="t" x="313" y="340" text-anchor="middle" style="font-size:11px">λ EventBridgeScheduleTarget…</text>
+      <text class="s" x="313" y="354" text-anchor="middle">→ prod API · fails every run</text>
+      <rect class="box" x="424" y="278" width="200" height="38" rx="6"/>
+      <text class="t" x="524" y="294" text-anchor="middle" style="font-size:11px">Scheduler · dev → λ Dev-…</text>
+      <text class="s" x="524" y="308" text-anchor="middle">every 5 min → dev API · works</text>
+      <rect class="box" x="424" y="324" width="200" height="38" rx="6"/>
+      <text class="t" x="524" y="340" text-anchor="middle" style="font-size:11px">λ cloudfront-invalidation</text>
+      <text class="s" x="524" y="354" text-anchor="middle">clears cache after a deploy</text>
+
+      <!-- security -->
+      <rect class="grp dash" x="656" y="250" width="310" height="118" rx="10" fill="#ffffff"/>
+      <text class="g" x="668" y="268">Security · monitoring</text>
+      <rect class="box" x="668" y="278" width="142" height="38" rx="6"/>
+      <text class="t" x="739" y="294" text-anchor="middle" style="font-size:11px">Secrets Manager</text>
+      <text class="s" x="739" y="308" text-anchor="middle">6 secrets</text>
+      <rect class="box" x="818" y="278" width="140" height="38" rx="6"/>
+      <text class="t" x="888" y="294" text-anchor="middle" style="font-size:11px">CloudWatch</text>
+      <text class="s" x="888" y="308" text-anchor="middle">logs · ~40 alarms</text>
+      <rect class="box" x="668" y="324" width="142" height="38" rx="6"/>
+      <text class="t" x="739" y="340" text-anchor="middle" style="font-size:11px">CloudTrail</text>
+      <text class="s" x="739" y="354" text-anchor="middle">all regions</text>
+      <rect class="box" x="818" y="324" width="140" height="38" rx="6"/>
+      <text class="t" x="888" y="340" text-anchor="middle" style="font-size:11px">GuardDuty → SNS</text>
+      <text class="s" x="888" y="354" text-anchor="middle">findings by email</text>
+
+      <!-- delivery -->
+      <rect class="grp dash" x="36" y="378" width="600" height="68" rx="10" fill="#ffffff"/>
+      <text class="g" x="48" y="394">Delivery · frontend hosting</text>
+      <rect class="box" x="48" y="400" width="130" height="38" rx="6"/>
+      <text class="t" x="113" y="416" text-anchor="middle" style="font-size:11px">CodePipeline × 6</text>
+      <text class="s" x="113" y="430" text-anchor="middle">3 server · 3 client</text>
+      <path class="e" d="M178 419 H196" marker-end="url(#ar)"/>
+      <rect class="box" x="198" y="400" width="120" height="38" rx="6"/>
+      <text class="t" x="258" y="416" text-anchor="middle" style="font-size:11px">CodeBuild × 2</text>
+      <text class="s" x="258" y="430" text-anchor="middle">no tests</text>
+      <path class="e" d="M318 419 H336" marker-end="url(#ar)"/>
+      <rect class="box" x="338" y="400" width="140" height="38" rx="6"/>
+      <text class="t" x="408" y="416" text-anchor="middle" style="font-size:11px">EB · S3 site buckets</text>
+      <text class="s" x="408" y="430" text-anchor="middle">API · public app</text>
+      <rect class="box main" x="494" y="400" width="130" height="38" rx="6"/>
+      <text class="t" x="559" y="416" text-anchor="middle" style="font-size:11px">Amplify</text>
+      <text class="s" x="559" y="430" text-anchor="middle">admin app · 2 branches</text>
+
+      <!-- network -->
+      <rect class="grp dash" x="656" y="378" width="310" height="68" rx="10" fill="#ffffff"/>
+      <text class="g" x="668" y="394">Network</text>
+      <rect class="box" x="668" y="400" width="142" height="38" rx="6"/>
+      <text class="t" x="739" y="416" text-anchor="middle" style="font-size:11px">Default VPC</text>
+      <text class="s" x="739" y="430" text-anchor="middle">EB servers · RDS</text>
+      <rect class="box idle" x="818" y="400" width="140" height="38" rx="6"/>
+      <text class="t" x="888" y="416" text-anchor="middle" style="font-size:11px">Terragrunt VPC</text>
+      <text class="s" x="888" y="430" text-anchor="middle">2 NAT gateways · 1 λ</text>
+
+      <!-- global -->
+      <rect class="grp" x="996" y="32" width="226" height="432" rx="12"/>
+      <text class="g" x="1010" y="50">Global · us-east-1</text>
+      <rect class="box" x="1008" y="58" width="202" height="52" rx="7"/>
+      <text class="t" x="1020" y="78" style="font-size:11.5px">CloudFront · 3</text>
+      <text class="s" x="1020" y="94">app (+WAF) · dev · staging off</text>
+      <rect class="box" x="1008" y="118" width="202" height="52" rx="7"/>
+      <text class="t" x="1020" y="138" style="font-size:11.5px">WAF · 4 web ACLs</text>
+      <text class="s" x="1020" y="154">none on the live API</text>
+      <rect class="box" x="1008" y="178" width="202" height="52" rx="7"/>
+      <text class="t" x="1020" y="198" style="font-size:11.5px">ACM · 7 certificates</text>
+      <text class="s" x="1020" y="214">4 valid to 2027 · 3 expired</text>
+      <rect class="box" x="1008" y="238" width="202" height="52" rx="7"/>
+      <text class="t" x="1020" y="258" style="font-size:11.5px">Route 53 · 2 zones</text>
+      <text class="s" x="1020" y="274">admin.zikaronbasalon.com</text>
+      <rect class="box bad" x="1008" y="298" width="202" height="52" rx="7"/>
+      <text class="t" x="1020" y="318" style="font-size:11.5px">IAM · root + 8 users</text>
+      <text class="lbl r" x="1020" y="334">root has 2 access keys</text>
+      <rect class="box ext" x="1008" y="358" width="202" height="62" rx="7" style="fill:#F0EBF8;stroke:#6A4C9C;stroke-dasharray:5 4"/>
+      <text class="t" x="1020" y="378" style="font-size:11.5px">Salon Builder</text>
+      <text class="s" x="1020" y="394">us-east-1 · EC2 · ALB · S3</text>
+      <text class="s" x="1020" y="409">out of scope</text>
+      <text class="s" x="1010" y="444">zikaronbasalon.com DNS is</text>
+      <text class="s" x="1010" y="458">at Wix, outside AWS</text>
+
+      <!-- markers -->
+      <circle class="dot t2" cx="234" cy="74" r="10"/><text class="dn" x="234" y="78" text-anchor="middle">1</text>
+      <circle class="dot r" cx="626" cy="74" r="10"/><text class="dn" x="626" y="78" text-anchor="middle">2</text>
+      <circle class="dot r" cx="810" cy="74" r="10"/><text class="dn" x="810" y="78" text-anchor="middle">3</text>
+      <circle class="dot a" cx="408" cy="278" r="10"/><text class="dn" x="408" y="282" text-anchor="middle">4</text>
+      <circle class="dot" cx="178" cy="400" r="10"/><text class="dn" x="178" y="404" text-anchor="middle">5</text>
+      <circle class="dot" cx="958" cy="400" r="10"/><text class="dn" x="958" y="404" text-anchor="middle">6</text>
+      <circle class="dot r" cx="1210" cy="118" r="10"/><text class="dn" x="1210" y="122" text-anchor="middle">7</text>
+    </svg>
+  </div>
+
+  <div class="notes">
+    <div><span class="num t2">1</span><span>באפליקציית Elastic Beanstalk יש 6 סביבות, אבל רק שתיים מקבלות תעבורה: <code>backend-env</code> לפרודקשן ו-<code>be-dev</code> ל-dev.</span></div>
+    <div><span class="num a">4</span><span>המיילים והתזכורות כבויים מחוץ לעונה: שורת השליחה בהערה, וה-Lambda של התזכורות נכשלת. התזכורות של dev עובדות.</span></div>
+    <div><span class="num r">2</span><span>שתי הסביבות הישנות יצרו את מסדי הנתונים ועדיין הבעלים שלהם. <b>terminate לאחת מהן מוחק את המסד שלה.</b></span></div>
+    <div><span class="num">5</span><span>6 pipelines: שלושה לשרת ושלושה לאתר הציבורי. ה-pipeline של staging לשרת מכוון לסביבה שלא קיימת. פורטל הניהול נבנה ב-Amplify.</span></div>
+    <div><span class="num r">3</span><span>מסד הפרודקשן על Postgres 13, אחרי סוף התמיכה הרגילה. לידו עותק Postgres 17 מ-blue/green שנשאר מפברואר, ומסד Postgres 13 שאף אחד לא משתמש בו.</span></div>
+    <div><span class="num">6</span><span>ה-VPC של Terragrunt מ-2022 עדיין מריץ 2 NAT gateways, בשביל Lambda אחת שרצה רק כשמעלים את האתר.</span></div>
+    <div><span class="num r">7</span><span>ה-WAF מכסה את האתרים ואת הסביבות הלא פעילות, לא את ה-API החי. ל-root יש שני access keys פעילים.</span></div>
+    <div><span class="num" style="background:#6A4C9C">8</span><span>Salon Builder יושב באותו חשבון, ב-us-east-1, ואינו חלק מהפרויקט. באזורים eu-central-1 ו-eu-west-1 יש רק buckets ריקים של EB.</span></div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · AWS · ארכיטקטורה</span><span>נבדק מול החשבון החי ב-22.11.2026 · קריאה בלבד</span></div>
+</section>
+
+<!-- ============ PAGE 2 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1><em>Elastic Beanstalk</em>, סביבה אחרי סביבה</h1>
+      <p class="sub">מה רץ בכל סביבה, איזה מסד נתונים היא משתמשת בו או מחזיקה, ומה קורה בכל deploy</p>
+    </div>
+    <div class="meta"><b>חשבון AWS יחיד</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 2 מתוך 3</div>
+  </div>
+
+  <table class="env" style="margin-top:10px">
+    <tr><th>סביבה</th><th>תפקיד</th><th>פלטפורמה</th><th>שרתים: מוגדר / רץ</th><th>Load balancer</th><th>WAF</th><th>מסד נתונים</th><th>נפרס מ</th><th>עדכון אחרון</th></tr>
+    <tr class="live"><td class="mono">Zikaron-basalon-backend-env</td><td><b>ה-API של פרודקשן</b> · <code>prod.</code></td><td>Python 3.12 · AL2023</td><td>2–4 × t3.large / <b>2</b></td><td>ALB · idle 60 s</td><td><span class="st-bad">אין</span></td><td>משתמש במסד של <code>be-production</code> · מחזיק מסד PG 13 שלא בשימוש</td><td class="mono">main</td><td>21.11.2026</td></tr>
+    <tr class="live"><td class="mono">Zikaron-basalon-be-dev</td><td><b>ה-API של dev</b> · <code>dev.</code></td><td>Python 3.12 · AL2023</td><td>1–5 × t3.small / <b>1</b></td><td>ALB · idle 60 s</td><td><span class="st-bad">אין</span></td><td>משתמש במסד של <code>be-development</code></td><td class="mono">dev</td><td>24.5.2026</td></tr>
+    <tr><td class="mono">Zikaron-basalon-be-production</td><td>ישנה, בלי תעבורה</td><td>Python 3.9 · AL2023</td><td>1–3 × t3.large / <b>1</b></td><td>ALB · idle 300 s</td><td>regional · geo</td><td><span class="st-bad">הבעלים של מסד הפרודקשן</span></td><td>—</td><td>21.11.2026</td></tr>
+    <tr><td class="mono">Zikaron-basalon-be-development</td><td>ישנה, בלי תעבורה</td><td>Python 3.9 · AL2023</td><td>0–5 × t3.small / <b>1</b></td><td>ALB · idle 60 s</td><td>regional · geo</td><td><span class="st-bad">הבעלים של מסד ה-dev</span></td><td>—</td><td>7.9.2025</td></tr>
+    <tr class="dead"><td class="mono">Zikaron-basalon-be-prod-new</td><td>מתה</td><td>Python 3.8 · AL2</td><td>1–10 × t2.medium / 0</td><td>—</td><td>—</td><td>המסד שלה נמחק</td><td>—</td><td>14.1.2025</td></tr>
+    <tr class="dead"><td class="mono">infra-develop-zikaron</td><td>מתה · Terragrunt</td><td>Python 3.8 · AL2</td><td>1–2 × t3.micro / 0</td><td>NLB</td><td>—</td><td>המסד שלה נמחק</td><td>—</td><td>5.1.2023</td></tr>
+  </table>
+
+  <div class="cols" style="grid-template-columns: 1fr 1fr; margin-top:12px;">
+    <div class="col">
+      <h2>מי משתמש במסד, ומי מחזיק אותו</h2>
+      <div class="diagram" style="margin-top:0">
+        <svg viewBox="0 0 560 250" role="img" aria-label="בעלות על מסדי הנתונים">
+          <defs>
+            <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1B2A4A"/></marker>
+            <marker id="o-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#B4372C"/></marker>
+          </defs>
+          <path class="e" d="M150 40 H218" marker-end="url(#o)"/><text class="lbl" x="184" y="33" text-anchor="middle">uses</text>
+          <path class="e r" d="M410 40 H342" marker-end="url(#o-r)"/><text class="lbl r" x="376" y="33" text-anchor="middle">owns</text>
+          <path class="e l" d="M280 62 V88" stroke-dasharray="3 3" marker-end="url(#o)"/><text class="lbl" x="288" y="80">blue/green</text>
+          <path class="e" d="M150 170 H218" marker-end="url(#o)"/><text class="lbl" x="184" y="163" text-anchor="middle">uses</text>
+          <path class="e r" d="M410 170 H342" marker-end="url(#o-r)"/><text class="lbl r" x="376" y="163" text-anchor="middle">owns</text>
+          <path class="e r" d="M80 58 V200 H218" marker-end="url(#o-r)"/><text class="lbl r" x="90" y="214">owns</text>
+          <rect class="box main" x="10" y="18" width="140" height="40" rx="6"/><text class="t" x="80" y="36" text-anchor="middle" style="font-size:11px">backend-env</text><text class="s" x="80" y="50" text-anchor="middle">live prod</text>
+          <rect class="box bad" x="220" y="18" width="120" height="44" rx="6"/><text class="t" x="280" y="37" text-anchor="middle" style="font-size:11px">Prod DB</text><text class="s" x="280" y="52" text-anchor="middle">PG 13</text>
+          <rect class="box idle" x="410" y="18" width="140" height="40" rx="6"/><text class="t" x="480" y="36" text-anchor="middle" style="font-size:11px">be-production</text><text class="s" x="480" y="50" text-anchor="middle">no traffic</text>
+          <rect class="box idle" x="220" y="90" width="120" height="36" rx="6"/><text class="t" x="280" y="106" text-anchor="middle" style="font-size:11px">Green copy</text><text class="s" x="280" y="119" text-anchor="middle">PG 17</text>
+          <rect class="box main" x="10" y="148" width="140" height="40" rx="6"/><text class="t" x="80" y="166" text-anchor="middle" style="font-size:11px">be-dev</text><text class="s" x="80" y="180" text-anchor="middle">live dev</text>
+          <rect class="box main" x="220" y="148" width="120" height="44" rx="6"/><text class="t" x="280" y="167" text-anchor="middle" style="font-size:11px">Dev DB</text><text class="s" x="280" y="182" text-anchor="middle">PG 17</text>
+          <rect class="box idle" x="410" y="148" width="140" height="40" rx="6"/><text class="t" x="480" y="166" text-anchor="middle" style="font-size:11px">be-development</text><text class="s" x="480" y="180" text-anchor="middle">no traffic</text>
+          <rect class="box idle" x="220" y="200" width="120" height="40" rx="6"/><text class="t" x="280" y="218" text-anchor="middle" style="font-size:11px">Unused DB</text><text class="s" x="280" y="232" text-anchor="middle">PG 13</text>
+        </svg>
+      </div>
+      <div class="card red">
+        <h3>למה זה חשוב</h3>
+        ב-Elastic Beanstalk, מסד שנוצר בתוך סביבה שייך לה. מדיניות המחיקה של שתי הסביבות הישנות היא "snapshot ואז מחיקה", ולאף מסד אין הגנה מפני מחיקה. ניקוי של סביבה "מיותרת" ימחק את מסד הפרודקשן.
+      </div>
+    </div>
+
+    <div class="col">
+      <h2>מה קורה ב-deploy לסביבה החיה</h2>
+      <ol class="steps">
+        <li><span class="num">1</span><span>push ל-<code>main</code> ב-<code>zikaron-basalon-be</code> מפעיל את <code>server-pipline-prod</code>.</span></li>
+        <li><span class="num">2</span><span>CodeBuild ‏(<code>develop-zikaron-server-build</code>) מריץ רק <code>pip install</code>. החבילה היא כל הריפו, 27 MB, כולל dump של מסד הנתונים.</span></li>
+        <li><span class="num">3</span><span>הגרסה נשמרת ב-S3 ונפרסת ל-<code>backend-env</code>: ‏nginx → gunicorn עם 3 workers בכל שרת.</span></li>
+        <li><span class="num a">4</span><span>hook של postdeploy מריץ <code>migrate</code> ו-<code>collectstatic</code> על ה-leader בלבד, <b>אחרי</b> שהקוד החדש כבר עונה.</span></li>
+      </ol>
+      <div class="card">
+        <h3>הגדרות שמשותפות לכל הסביבות</h3>
+        בדיקת בריאות ב-<code>/health</code> כל 15 שניות · SSH פתוח לכל העולם עם מפתח משותף · IMDSv1 חסום · cron על ה-leader כל 10 דקות (לא עושה כלום) · alarms ל-scaling שמאזינים למטריקות שלא קיימות · הסביבה החיה שולחת ל-CloudWatch רק את ה-health log.
+      </div>
+      <div class="card amber">
+        <h3>הגדרות שחיות רק בקונסולה</h3>
+        משתני הסביבה של ה-API (כולל הסודות שלו), גודל השרתים, ה-load balancers וה-pipelines לא מוגדרים בשום קוד. ה-Terragrunt שבריפו מ-2022 לא יכול לבנות אותם מחדש.
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · AWS · ארכיטקטורה</span><span>מקור: Elastic Beanstalk, RDS ו-CodePipeline בחשבון החי · ‎.ebextensions ו-.platform בריפו</span></div>
+</section>
+
+<!-- ============ PAGE 3 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>כל <em>המשאבים</em> בחשבון</h1>
+      <p class="sub">מלאי מלא, לפי שירות. מה בשימוש, מה כבוי, ומה שארית שנשמרת בינתיים</p>
+    </div>
+    <div class="meta"><b>חשבון AWS יחיד</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 3 מתוך 3</div>
+  </div>
+
+  <div class="cols3">
+    <div class="stack mini">
+      <h2>S3 · 19 buckets</h2>
+      <table class="tiny">
+        <tr><th>bucket</th><th>תפקיד</th><th>גודל</th><th>חסימה ציבורית</th></tr>
+        <tr><td class="mono">infra-develop-zikaron-prod</td><td>האתר הציבורי, פרודקשן</td><td>2.3 GB</td><td><span class="st-miss">כבויה</span></td></tr>
+        <tr><td class="mono">infra-develop-zikaron-dev</td><td>האתר הציבורי, dev</td><td>8.4 GB</td><td><span class="st-miss">כבויה</span></td></tr>
+        <tr><td class="mono">infra-develop-zikaron-staging</td><td>האתר, staging (כבוי)</td><td>1.5 GB</td><td><span class="st-miss">כבויה</span></td></tr>
+        <tr><td class="mono">infra-develop-zikaron-origin</td><td>שארית Terragrunt</td><td>0.2 GB</td><td><span class="st-miss">כבויה</span></td></tr>
+        <tr><td class="mono">codepipeline-eu-west-3-&lt;id&gt;</td><td>artifacts של ה-pipelines, כולל ה-dump</td><td>33.6 GB</td><td><span class="st-miss">לא מוגדרת</span></td></tr>
+        <tr><td class="mono">elasticbeanstalk-eu-west-3-&lt;acct&gt;</td><td>גרסאות EB</td><td>0.3 GB</td><td><span class="st-miss">לא מוגדרת</span></td></tr>
+        <tr><td class="mono">elasticbeanstalk-eu-west-1/central-1-…</td><td>שאריות, שני buckets</td><td>~0</td><td><span class="st-miss">כבויה / לא</span></td></tr>
+        <tr><td class="mono">aws-cloudtrail-logs-&lt;acct&gt;-…</td><td>CloudTrail</td><td>5.1 GB</td><td>פעילה</td></tr>
+        <tr><td class="mono">infra-develop-zikaron(-logs)</td><td>Terragrunt, לוגים</td><td>0.1 GB</td><td>פעילה</td></tr>
+        <tr><td class="mono">infra-develop-s3-access-logs</td><td>access logs</td><td>—</td><td>פעילה</td></tr>
+        <tr><td class="mono">infra-develop-develop-…-pipeline ×2</td><td>artifacts של Terragrunt</td><td>—</td><td>פעילה</td></tr>
+        <tr><td class="mono">zikaron-eu-west-3-terraform-s3</td><td>Terraform state</td><td>~0</td><td>פעילה</td></tr>
+        <tr><td class="mono">cf-templates-… ×2</td><td>CloudFormation</td><td>~0</td><td>פעילה</td></tr>
+        <tr><td class="mono">all-salons-dev</td><td>לא ידוע</td><td>0.1 GB</td><td>פעילה</td></tr>
+        <tr><td class="mono">salon-builder-backups</td><td>Salon Builder · us-east-1</td><td>—</td><td>פעילה</td></tr>
+      </table>
+      <h2>Lambda · 4</h2>
+      <table class="tiny">
+        <tr><th>function</th><th>מה מפעיל</th><th>30 יום</th><th>מצב</th></tr>
+        <tr><td class="mono">email-processor</td><td>SQS, אצווה של 50 · timeout 3 s</td><td>8 הרצות</td><td><span class="st-miss">שליחה כבויה</span></td></tr>
+        <tr><td class="mono">EventBridgeScheduleTargetPython</td><td>Scheduler כל 10 דק׳</td><td>4,320 / 4,320 שגיאות</td><td><span class="st-bad">נכשלת</span></td></tr>
+        <tr><td class="mono">Dev-EventBridgeScheduleTargetPython</td><td>Scheduler כל 5 דק׳</td><td>8,640 · 0 שגיאות</td><td><span class="st-ok">עובדת</span></td></tr>
+        <tr><td class="mono">cloudfront-invalidation-develop</td><td>שלב ב-pipeline של האתר</td><td>0</td><td>ב-VPC של Terragrunt</td></tr>
+      </table>
+      <h2>Secrets Manager · 6</h2>
+      <div class="chips"><code>sendgrid-api-key</code><code>prod/event-bridge-key</code><code>dev/event-bridge-key</code><code>project_keys</code><code>server/env_vars</code><code>secrets/develop</code></div>
+    </div>
+
+    <div class="stack mini">
+      <h2>CodePipeline · 6 · CodeBuild · 2</h2>
+      <table class="tiny">
+        <tr><th>pipeline</th><th>מקור</th><th>יעד</th></tr>
+        <tr><td class="mono">server-pipline-prod</td><td class="mono">be · main</td><td class="mono">backend-env</td></tr>
+        <tr><td class="mono">server-pipline-dev</td><td class="mono">be · dev</td><td class="mono">be-dev</td></tr>
+        <tr><td class="mono">server-pipline-staging</td><td class="mono">be · staging</td><td><span class="st-bad">סביבה שלא קיימת</span></td></tr>
+        <tr><td class="mono">client-pipeline-prod / dev / staging</td><td class="mono">fe · main/dev/staging</td><td>S3 לכל סביבה + ניקוי cache</td></tr>
+        <tr><td class="mono">develop-zikaron-server-build</td><td colspan="2">CodeBuild · pip install בלבד</td></tr>
+        <tr><td class="mono">develop-zikaron-client-build</td><td colspan="2">CodeBuild · image ישן standard:4.0 · npm build</td></tr>
+      </table>
+      <h2>Amplify · CloudFront · WAF</h2>
+      <table class="tiny">
+        <tr><td class="k">Amplify</td><td>אפליקציה אחת, <code>zikaron-basalon-fe-admin</code>: ענף <code>main</code> → admin., ‏<code>development</code> → development.admin.</td></tr>
+        <tr><td class="k">CloudFront</td><td>3: האתר (app., www.app.) עם WAF · dev בלי דומיין · staging כבוי. ועוד אחד מנוהל של Amplify</td></tr>
+        <tr><td class="k">WAF</td><td>4: של האתר (managed + bot control) · של Amplify (geo + managed) · regional על שתי הסביבות הישנות · <code>run-scripts-dev</code> לא מחובר לכלום</td></tr>
+      </table>
+      <h2>ACM · 7 · Route 53 · 2 · EventBridge</h2>
+      <table class="tiny">
+        <tr><td class="k">ACM</td><td><code>prod.</code>, <code>dev.</code> (eu-west-3, עד 2027) · <code>app.</code>, <code>builder.</code> (us-east-1, עד 2027) · 3 שפגו: <code>app.</code> ישן, <code>*.</code>, <code>staging.</code></td></tr>
+        <tr><td class="k">Route 53</td><td><code>admin.zikaronbasalon.com</code> (Amplify) · <code>zemesh.local</code> (לא ידוע). שאר הדומיין ב-Wix</td></tr>
+        <tr><td class="k">EventBridge</td><td>2 schedules (prod כל 10 דק׳, dev כל 5 דק׳) · rule של CodePipeline · rule של GuardDuty → SNS</td></tr>
+      </table>
+      <h2>IAM · רשת · אזורים</h2>
+      <table class="tiny">
+        <tr><td class="k">IAM</td><td>root עם MFA ו-<span class="st-bad">2 access keys</span> · 6 אנשים (3 בלי MFA) · 2 service users</td></tr>
+        <tr><td class="k">רשת</td><td>VPC ברירת מחדל · VPC של Terragrunt עם 2 NAT gateways · 12 Elastic IPs · 5 דיסקים, 40 GiB</td></tr>
+        <tr><td class="k">גיבויי RDS</td><td>10 אוטומטיים (100 GiB) · 34 ידניים (335 GiB)</td></tr>
+        <tr><td class="k">אזורים</td><td>eu-west-3 הכול · us-east-1 Salon Builder ותעודות · eu-central-1, eu-west-1 רק buckets · il-central-1 לא מופעל</td></tr>
+        <tr><td class="k">חשבון</td><td>לא חלק מ-AWS Organization · אין budgets</td></tr>
+      </table>
+      <div class="card amber">
+        <h3>שאריות שנשמרות בינתיים (החלטת הצוות)</h3>
+        2 סביבות EB מתות, עותק PG 17 ומסד PG 13 שלא בשימוש, ה-VPC וה-NAT gateways של Terragrunt, ‏buckets ישנים, ‏3 תעודות שפגו, ו-WAF אחד לא מחובר. <b>את שתי הסביבות הישנות שמחזיקות מסדים אסור למחוק.</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · AWS · ארכיטקטורה</span><span>מזהה החשבון מוסתר (&lt;acct&gt;) · מקור: בדיקת קריאה בלבד ב-CloudShell, 22.11.2026</span></div>
+</section>
+
+</body>
+</html>

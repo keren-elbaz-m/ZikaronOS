@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #ffcb05;
+  --color-brand-strong: #f2bd00;
+  --color-ink: #1d1d1b;
+  --color-muted: #6b675c;
+  --color-cream: #f4efe2;
+  --color-paper: #fffdf8;
+  --color-canvas: #faf7ef;
+  --color-line: #e3dccb;
+  --color-rose: #d9475a;
+  --color-green: #2f7d4f;
+  --font-sans: var(--font-rubik), system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Leaflet sits inside rounded cards */
+.leaflet-container {
+  font-family: var(--font-sans);
+  border-radius: inherit;
+}
+
+.salon-pin {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px 999px 999px 0;
+  transform: rotate(-45deg);
+  background: var(--color-brand);
+  border: 2px solid var(--color-ink);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+}
+.salon-pin span {
+  transform: rotate(45deg);
+  font: 600 12px/1 var(--font-sans);
+  color: var(--color-ink);
+}
+.salon-pin.is-full {
+  background: #e8e2d2;
+}
+.salon-pin.is-active {
+  background: var(--color-ink);
+}
+.salon-pin.is-active span {
+  color: var(--color-brand);
+}

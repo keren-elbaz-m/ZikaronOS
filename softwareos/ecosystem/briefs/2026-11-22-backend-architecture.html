@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>זיכרון בסלון · backend · ארכיטקטורה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="brief.css">
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>ה-<em>backend</em> של זיכרון בסלון — ארכיטקטורה</h1>
+      <p class="sub">מה רץ היום בפרודקשן, ואיך ה-API, מסד הנתונים וחדר הדואר מחוברים זה לזה</p>
+    </div>
+    <div class="meta"><b>סביבת production</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 1 מתוך 3</div>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1240 500" role="img" aria-label="ארכיטקטורת ה-backend של זיכרון בסלון">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1B2A4A"/></marker>
+        <marker id="ar-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C2741C"/></marker>
+        <marker id="ar-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#B4372C"/></marker>
+      </defs>
+
+      <!-- legend -->
+      <line class="e" x1="20" y1="22" x2="50" y2="22"/><text class="s" x="58" y="26">exists and runs</text>
+      <line class="e a" x1="20" y1="40" x2="50" y2="40"/><text class="s" x="58" y="44">off for the off-season</text>
+      <line class="e r" x1="160" y1="22" x2="190" y2="22"/><text class="s" x="198" y="26">broken or a risk</text>
+
+      <!-- groups -->
+      <rect class="grp" x="230" y="40" width="990" height="452" rx="12"/>
+      <text class="g" x="246" y="484">AWS · eu-west-3 (Paris) · DNS for prod.zikaronbasalon.com is at Wix</text>
+      <rect class="grp dash" x="250" y="72" width="390" height="300" rx="10" fill="#ffffff"/>
+      <text class="g" x="262" y="90">Elastic Beanstalk · Zikaron-basalon-backend-env</text>
+      <rect class="grp dash" x="920" y="62" width="280" height="176" rx="10" fill="#ffffff"/>
+      <text class="g" x="934" y="80">Outbound · called by the API</text>
+
+      <!-- edges -->
+      <path class="e" d="M190 105 H268" marker-end="url(#ar)"/>
+      <text class="lbl" x="229" y="98" text-anchor="middle">REST · JWT</text>
+      <path class="e" d="M190 362 H325 V352" marker-end="url(#ar)"/>
+      <text class="lbl" x="255" y="380" text-anchor="middle">Basic auth · token</text>
+      <path class="e" d="M380 225 H408" marker-end="url(#ar)"/>
+      <path class="e" d="M620 140 H678" marker-end="url(#ar)"/>
+      <text class="lbl" x="649" y="133" text-anchor="middle">SQL</text>
+      <path class="e" d="M560 100 V54 H1060 V60" marker-end="url(#ar)"/>
+      <text class="lbl" x="820" y="49" text-anchor="middle">HTTPS · inside the user's request</text>
+      <path class="e" d="M620 280 H678" marker-end="url(#ar)"/>
+      <text class="lbl" x="649" y="273" text-anchor="middle">1 per email</text>
+      <path class="e" d="M880 280 H918" marker-end="url(#ar)"/>
+      <text class="lbl" x="899" y="273" text-anchor="middle">batch</text>
+      <path class="e a" d="M1060 310 V328" marker-end="url(#ar-a)"/>
+      <line class="x" x1="1054" y1="313" x2="1066" y2="325"/><line class="x" x1="1066" y1="313" x2="1054" y2="325"/>
+      <path class="e" d="M880 430 H918" marker-end="url(#ar)"/>
+      <text class="lbl" x="899" y="423" text-anchor="middle">invokes</text>
+      <path class="e r" d="M1060 460 V476 H585 V352" marker-end="url(#ar-r)"/>
+      <line class="x" x1="824" y1="470" x2="836" y2="482"/><line class="x" x1="836" y1="470" x2="824" y2="482"/>
+      <text class="lbl r" x="960" y="471" text-anchor="middle">POST reminders · fails</text>
+      <path class="e r" d="M520 405 V388 H655 V170 H678" marker-end="url(#ar-r)"/>
+      <text class="lbl r" x="590" y="384" text-anchor="middle">owns the DB</text>
+
+      <!-- people -->
+      <rect class="box" x="20" y="70" width="170" height="74" rx="8"/>
+      <text class="t" x="105" y="94" text-anchor="middle">דפדפן המשתמש</text>
+      <text class="s" x="105" y="112" text-anchor="middle">public app · admin app</text>
+      <text class="s" x="105" y="128" text-anchor="middle">+ Django admin (super admins)</text>
+      <rect class="box" x="20" y="330" width="170" height="64" rx="8"/>
+      <text class="t" x="105" y="354" text-anchor="middle">שותפים</text>
+      <text class="s" x="105" y="372" text-anchor="middle">Easy feed · Google Sheet</text>
+
+      <!-- EB env -->
+      <rect class="box" x="270" y="100" width="110" height="250" rx="8"/>
+      <text class="t" x="325" y="200" text-anchor="middle">ALB</text>
+      <text class="s" x="325" y="218" text-anchor="middle">HTTPS :443</text>
+      <text class="s" x="325" y="234" text-anchor="middle">TLS 2016-08</text>
+      <text class="s" x="325" y="250" text-anchor="middle">idle 60 s</text>
+      <text class="lbl r" x="325" y="272" text-anchor="middle">no WAF</text>
+      <rect class="box main" x="410" y="100" width="210" height="250" rx="8"/>
+      <text class="t" x="515" y="138" text-anchor="middle" style="font-size:15px;fill:#0F766E">API · Django 4.2 + DRF</text>
+      <text class="s" x="515" y="164" text-anchor="middle">EC2 × 2 · t3.large</text>
+      <text class="s" x="515" y="182" text-anchor="middle">nginx → gunicorn</text>
+      <text class="s" x="515" y="200" text-anchor="middle">3 sync workers per server</text>
+      <text class="s" x="515" y="218" text-anchor="middle">= 6 requests at once</text>
+      <text class="s" x="515" y="244" text-anchor="middle">Django admin at /admin/</text>
+      <text class="s" x="515" y="262" text-anchor="middle">migrations run after deploy</text>
+      <text class="lbl r" x="515" y="290" text-anchor="middle">autoscaling never fires</text>
+      <rect class="box idle" x="250" y="405" width="280" height="56" rx="8"/>
+      <text class="t" x="390" y="428" text-anchor="middle">Zikaron-basalon-be-production</text>
+      <text class="s" x="390" y="446" text-anchor="middle">old env · no traffic · created the prod DB</text>
+
+      <!-- data -->
+      <rect class="box bad" x="680" y="100" width="200" height="120" rx="8"/>
+      <text class="t" x="780" y="126" text-anchor="middle">RDS · Postgres 13</text>
+      <text class="s" x="780" y="146" text-anchor="middle">db.t3.medium · encrypted</text>
+      <text class="s" x="780" y="162" text-anchor="middle">1-day backups · single AZ</text>
+      <text class="s" x="780" y="178" text-anchor="middle">past standard support</text>
+      <text class="lbl r" x="780" y="200" text-anchor="middle">no deletion protection</text>
+      <rect class="box" x="680" y="252" width="200" height="58" rx="8"/>
+      <text class="t" x="780" y="276" text-anchor="middle">SQS · email queue</text>
+      <text class="s" x="780" y="294" text-anchor="middle">+ dead-letter queue (5 tries)</text>
+      <rect class="box" x="680" y="402" width="200" height="58" rx="8"/>
+      <text class="t" x="780" y="426" text-anchor="middle">EventBridge Scheduler</text>
+      <text class="s" x="780" y="444" text-anchor="middle">every 10 minutes (UTC)</text>
+
+      <!-- outbound -->
+      <rect class="box" x="935" y="88" width="250" height="40" rx="6"/>
+      <text class="t" x="950" y="106">Twilio</text><text class="s" x="950" y="121">SMS login codes</text>
+      <rect class="box" x="935" y="136" width="250" height="40" rx="6"/>
+      <text class="t" x="950" y="154">Google Geocoding</text><text class="s" x="950" y="169">witness addresses</text>
+      <rect class="box off" x="935" y="184" width="250" height="40" rx="6"/>
+      <text class="t" x="950" y="202">TexterChat</text><text class="s" x="950" y="217">WhatsApp · switched off</text>
+
+      <!-- mail room -->
+      <rect class="box off" x="920" y="252" width="280" height="58" rx="8"/>
+      <text class="t" x="1060" y="276" text-anchor="middle">Lambda · email-processor</text>
+      <text class="s" x="1060" y="294" text-anchor="middle">send line commented out</text>
+      <rect class="box idle" x="920" y="330" width="280" height="44" rx="8"/>
+      <text class="t" x="1060" y="350" text-anchor="middle">SendGrid</text>
+      <text class="s" x="1060" y="366" text-anchor="middle">receives nothing now</text>
+      <rect class="box bad" x="920" y="402" width="280" height="58" rx="8"/>
+      <text class="t" x="1060" y="426" text-anchor="middle">Lambda · reminders</text>
+      <text class="s" x="1060" y="444" text-anchor="middle">handler commented out → fails</text>
+
+      <!-- markers -->
+      <circle class="dot" cx="229" cy="122" r="10"/><text class="dn" x="229" y="126" text-anchor="middle">1</text>
+      <circle class="dot" cx="380" cy="100" r="10"/><text class="dn" x="380" y="104" text-anchor="middle">2</text>
+      <circle class="dot t2" cx="620" cy="100" r="10"/><text class="dn" x="620" y="104" text-anchor="middle">3</text>
+      <circle class="dot r" cx="880" cy="100" r="10"/><text class="dn" x="880" y="104" text-anchor="middle">4</text>
+      <circle class="dot" cx="700" cy="54" r="10"/><text class="dn" x="700" y="58" text-anchor="middle">5</text>
+      <circle class="dot a" cx="1200" cy="252" r="10"/><text class="dn" x="1200" y="256" text-anchor="middle">6</text>
+      <circle class="dot r" cx="1200" cy="402" r="10"/><text class="dn" x="1200" y="406" text-anchor="middle">7</text>
+      <circle class="dot" cx="208" cy="345" r="10"/><text class="dn" x="208" y="349" text-anchor="middle">8</text>
+    </svg>
+  </div>
+
+  <div class="row5">
+    <div class="svc"><b>Config · secrets</b><span>API: EB environment properties<br>Lambdas: Secrets Manager</span></div>
+    <div class="svc"><b>Delivery</b><span>GitHub → CodePipeline → CodeBuild → EB<br>pip install only · no tests</span></div>
+    <div class="svc"><b>CloudWatch</b><span>live env streams its health log only<br>scaling alarms watch missing metrics</span></div>
+    <div class="svc"><b>CloudTrail · GuardDuty</b><span>all regions<br>findings emailed through SNS</span></div>
+    <div class="svc"><b>DNS</b><span>registrar Network Solutions · DNS at Wix<br>admin. delegated to Route 53</span></div>
+  </div>
+
+  <div class="notes">
+    <div><span class="num">1</span><span>שתי האפליקציות קוראות ישירות ל-<code>prod.zikaronbasalon.com</code>. אין CloudFront לפני ה-API, וה-DNS יושב ב-Wix.</span></div>
+    <div><span class="num r">4</span><span>מסד הנתונים נוצר על ידי הסביבה הישנה <code>…-be-production</code> ושייך לה. <b>terminate לסביבה הזאת ימחק אותו.</b> גיבוי ליום אחד, בלי הגנה מפני מחיקה.</span></div>
+    <div><span class="num">2</span><span>ה-ALB מקבל HTTPS בלבד, אבל בלי WAF, ומדיניות ה-TLS עדיין מאפשרת TLS 1.0. ה-WAF מחובר רק לסביבות שלא בשימוש.</span></div>
+    <div><span class="num">5</span><span>Twilio, ‏Google Geocoding ו-WhatsApp נקראים בתוך הבקשה של המשתמש, בתוך הטרנזקציה. WhatsApp כבוי בכוונה מחוץ לעונה.</span></div>
+    <div><span class="num t2">3</span><span>2 שרתים × 3 workers סינכרוניים = 6 בקשות במקביל. ה-autoscaling לא מופעל אף פעם, אז זה גם הגודל בשיא העונה.</span></div>
+    <div><span class="num a">6</span><span>כל התראה במייל עוברת דרך התור. שורת השליחה ב-Lambda בהערה מחוץ לעונה, כך שהמיילים נזרקים, והנמענים נרשמים בלוג ללא הגבלת זמן.</span></div>
+    <div><span class="num">8</span><span>השותף Easy מושך את פיד הסלונים, ו-Google Sheet דוחף שורות עדים. שניהם פונים ישירות ל-API.</span></div>
+    <div><span class="num r">7</span><span>ה-Lambda של התזכורות נכשלת בכל ריצה, כל 10 דקות, כי ה-handler בהערה. אין alarm שעוקב אחריה.</span></div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · backend · ארכיטקטורה</span><span>נבדק מול החשבון החי ב-22.11.2026</span></div>
+</section>
+
+<!-- ============ PAGE 2 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>איך בקשה <em>עוברת</em> במערכת</h1>
+      <p class="sub">הזרימה של אורח שנרשם לסלון, כפי שהיא ממומשת בקוד של ה-API ושל האפליקציה הציבורית</p>
+    </div>
+    <div class="meta"><b>סביבת production</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 2 מתוך 3</div>
+  </div>
+
+  <div class="cols" style="grid-template-columns: 0.82fr 1.18fr;">
+    <div class="col">
+      <h2>אורח נרשם לסלון</h2>
+      <ol class="steps">
+        <li><span class="num">1</span><span>הדפדפן טוען את האפליקציה הציבורית מ-CloudFront. אלה קבצים סטטיים מ-S3, והקוד רץ בדפדפן.</span></li>
+        <li><span class="num">2</span><span>המפה מבקשת את הסלונים מ-<code>/api/host_salons_map/</code>. התשובה נשמרת ב-cache ל-5 דקות, אבל בנפרד בכל worker.</span></li>
+        <li><span class="num">3</span><span>האורח נרשם: <code>POST /api/salonguests/</code> עם ה-JWT שלו.</span></li>
+        <li><span class="num">4</span><span>ה-API בודק שיש מקום ושומר את ההרשמה. כל הבקשה היא טרנזקציה אחת במסד.</span></li>
+        <li><span class="num">5</span><span>signal של Django מכניס לתור את מייל האישור <code>guests_1</code>, עוד לפני שהטרנזקציה נסגרה.</span></li>
+        <li><span class="num">6</span><span>האורח מקבל <code>201</code>. כל השלבים עד כאן קרו בבקשה אחת, על worker אחד מתוך 6.</span></li>
+        <li><span class="num a">7</span><span>ה-Lambda מושכת את המייל מהתור. בעונה היא שולחת אותו דרך SendGrid. היום היא רושמת אותו בלוג וזורקת.</span></li>
+      </ol>
+      <div class="card">
+        <h3>מה קורה בתוך בקשה אחת</h3>
+        הלוגיקה העסקית יושבת ב-signals: מונים, דגלים, מיילים ו-WhatsApp. כולם רצים בתוך הבקשה ובתוך הטרנזקציה. אם הבקשה נכשלת בסוף, ייתכן שמייל כבר יצא. שירות חיצוני איטי תופס worker, ובשיא העונה יש רק 6.
+      </div>
+      <div class="card amber">
+        <h3>תזכורות, בעונה</h3>
+        EventBridge (כל 10 דקות) → Lambda → <code>POST /api/eventbridge_tasks/…</code> עם מפתח API. ה-API בוחר עד 50 תזכורות, מכניס את המיילים לתור ושולח WhatsApp. ריצה אחת תופסת worker עד כדקה, בדיוק בגבול ה-timeout של ה-ALB.
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="diagram" style="margin-top:0">
+        <svg viewBox="0 0 690 470" role="img" aria-label="תרשים רצף של הרשמת אורח לסלון">
+          <defs>
+            <marker id="sq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1B2A4A"/></marker>
+            <marker id="sq-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C2741C"/></marker>
+          </defs>
+          <!-- participants -->
+          <g>
+            <rect class="box" x="40" y="8" width="90" height="40" rx="6"/><text class="t" x="85" y="26" text-anchor="middle" style="font-size:11.5px">דפדפן האורח</text><text class="s" x="85" y="40" text-anchor="middle">public app</text>
+            <rect class="box" x="140" y="8" width="90" height="40" rx="6"/><text class="t" x="185" y="26" text-anchor="middle" style="font-size:11.5px">CloudFront</text><text class="s" x="185" y="40" text-anchor="middle">S3 · static</text>
+            <rect class="box main" x="240" y="8" width="90" height="40" rx="6"/><text class="t" x="285" y="26" text-anchor="middle" style="font-size:11.5px;fill:#0F766E">API</text><text class="s" x="285" y="40" text-anchor="middle">Django</text>
+            <rect class="box" x="340" y="8" width="90" height="40" rx="6"/><text class="t" x="385" y="26" text-anchor="middle" style="font-size:11.5px">Postgres</text><text class="s" x="385" y="40" text-anchor="middle">RDS</text>
+            <rect class="box" x="440" y="8" width="90" height="40" rx="6"/><text class="t" x="485" y="26" text-anchor="middle" style="font-size:11.5px">SQS</text><text class="s" x="485" y="40" text-anchor="middle">email queue</text>
+            <rect class="box off" x="540" y="8" width="90" height="40" rx="6"/><text class="t" x="585" y="26" text-anchor="middle" style="font-size:11.5px">Lambda</text><text class="s" x="585" y="40" text-anchor="middle">email-processor</text>
+          </g>
+          <g stroke="#B7BFCC" stroke-dasharray="3 4" stroke-width="1">
+            <line x1="85" y1="48" x2="85" y2="450"/><line x1="185" y1="48" x2="185" y2="450"/><line x1="285" y1="48" x2="285" y2="450"/>
+            <line x1="385" y1="48" x2="385" y2="450"/><line x1="485" y1="48" x2="485" y2="450"/><line x1="585" y1="48" x2="585" y2="450"/>
+          </g>
+          <!-- 1 -->
+          <circle class="dot" cx="18" cy="80" r="10"/><text class="dn" x="18" y="84" text-anchor="middle">1</text>
+          <path class="e" d="M85 80 H183" marker-end="url(#sq)"/><text class="m" x="134" y="74" text-anchor="middle">GET app.…</text>
+          <path class="e l" d="M185 100 H87" stroke-dasharray="4 3" marker-end="url(#sq)"/><text class="m" x="134" y="114" text-anchor="middle">React app</text>
+          <!-- 2 -->
+          <circle class="dot" cx="18" cy="148" r="10"/><text class="dn" x="18" y="152" text-anchor="middle">2</text>
+          <path class="e" d="M85 148 H283" marker-end="url(#sq)"/><text class="m" x="184" y="142" text-anchor="middle">GET /api/host_salons_map/</text>
+          <path class="e l" d="M285 168 H87" stroke-dasharray="4 3" marker-end="url(#sq)"/><text class="m" x="184" y="182" text-anchor="middle">salons · cached 300 s</text>
+          <!-- 3 -->
+          <circle class="dot" cx="18" cy="216" r="10"/><text class="dn" x="18" y="220" text-anchor="middle">3</text>
+          <path class="e" d="M85 216 H283" marker-end="url(#sq)"/><text class="m" x="184" y="210" text-anchor="middle">POST /api/salonguests/ · JWT</text>
+          <!-- 4 -->
+          <circle class="dot" cx="18" cy="256" r="10"/><text class="dn" x="18" y="260" text-anchor="middle">4</text>
+          <path class="e" d="M285 256 H383" marker-end="url(#sq)"/><text class="m" x="334" y="250" text-anchor="middle">check · save</text>
+          <!-- 5 -->
+          <circle class="dot" cx="18" cy="296" r="10"/><text class="dn" x="18" y="300" text-anchor="middle">5</text>
+          <path class="e" d="M285 296 H483" marker-end="url(#sq)"/><text class="m" x="384" y="290" text-anchor="middle">signal · queue guests_1</text>
+          <!-- 6 -->
+          <circle class="dot" cx="18" cy="336" r="10"/><text class="dn" x="18" y="340" text-anchor="middle">6</text>
+          <path class="e l" d="M285 336 H87" stroke-dasharray="4 3" marker-end="url(#sq)"/><text class="m" x="184" y="330" text-anchor="middle">201 Created</text>
+          <rect x="250" y="236" width="70" height="0" fill="none"/>
+          <!-- transaction bracket -->
+          <rect x="278" y="206" width="14" height="140" rx="3" fill="#E3F1EF" stroke="#0F766E" stroke-width="1"/>
+          <text class="lbl" x="298" y="356" style="fill:#0F766E">one DB transaction</text>
+          <!-- 7 -->
+          <circle class="dot a" cx="18" cy="396" r="10"/><text class="dn" x="18" y="400" text-anchor="middle">7</text>
+          <path class="e" d="M485 396 H583" marker-end="url(#sq)"/><text class="m" x="534" y="390" text-anchor="middle">batch ≤ 50</text>
+          <path class="e a" d="M585 426 H670" marker-end="url(#sq-a)"/>
+          <line class="x" x1="622" y1="420" x2="634" y2="432"/><line class="x" x1="634" y1="420" x2="622" y2="432"/>
+          <text class="lbl a" x="628" y="446" text-anchor="middle">SendGrid · off-season</text>
+        </svg>
+      </div>
+      <div class="legend" style="justify-content:center">
+        <span><i></i> בקשה</span>
+        <span><i style="border-top:2px dashed #7C8699"></i> תשובה</span>
+        <span><i class="a"></i> כבוי מחוץ לעונה</span>
+      </div>
+      <div class="card teal">
+        <h3>4 דרכים להתחבר, כולן מול אותו API</h3>
+        מייל וסיסמה (<code>/api/auth/login/</code>, JWT לשעה + refresh ל-30 יום) · Google (<code>convert-token</code> מהדפדפן) · קוד SMS בן 4 ספרות דרך Twilio · Django admin למנהלי-על. token של אפליקציה אחת עובד גם באחרת.
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · backend · ארכיטקטורה</span><span>מקור: zikaron-basalon-be (main), zikaron-basalon-fe (main), ‏Lambdas בחשבון החי</span></div>
+</section>
+
+<!-- ============ PAGE 3 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>מה כבר <em>מוגן</em>, מה חסר, ומה להחלטה</h1>
+      <p class="sub">המערכת רצה ומשרתת את העונה. אלה הפערים שכדאי לסגור, ומה שצריך להחליט עליו</p>
+    </div>
+    <div class="meta"><b>סביבת production</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 3 מתוך 3</div>
+  </div>
+
+  <div class="cols" style="grid-template-columns: 0.9fr 1.1fr;">
+    <div class="col">
+      <h2>בקרות שכבר קיימות <small>נבדקו מול החשבון החי</small></h2>
+      <ul class="ctl">
+        <li><b>HTTPS מול הדפדפן.</b> ה-ALB מקבל תעבורה מוצפנת עם תעודת ACM בתוקף עד 2027.</li>
+        <li><b>מסד הנתונים מוצפן.</b> RDS עם הצפנה, ולא פתוח לכל האינטרנט: נגיש מהשרתים ומשתי כתובות קבועות בלבד.</li>
+        <li><b>מפתח ה-API של התזכורות</b> מוגדר בכל הסביבות, כך שה-endpoint לא פתוח בלי מפתח.</li>
+        <li><b>סודות ה-Lambdas</b> ב-Secrets Manager. מפתח SendGrid לא נמצא בקוד.</li>
+        <li><b>תור מיילים עם dead-letter queue.</b> מייל שנכשל 5 פעמים נשמר 14 יום ולא הולך לאיבוד.</li>
+        <li><b>CloudTrail</b> בכל האזורים, ו-<b>GuardDuty</b> שולח ממצאים במייל.</li>
+        <li><b>חשבון root עם MFA.</b> השרתים חוסמים IMDSv1.</li>
+        <li><b>שתי האפליקציות מאחורי WAF:</b> הציבורית עם bot control, והניהול עם חסימה גאוגרפית.</li>
+      </ul>
+      <div class="card teal">
+        <h3>מגבלה שכדאי להגיד מראש</h3>
+        אין סביבת staging שעובדת ואין טסטים באף pipeline. כל שינוי נבדק בפועל רק בפרודקשן, ולכן כל תיקון לפני העונה צריך להיות קטן וממוקד, עם תוכנית חזרה.
+      </div>
+    </div>
+
+    <div class="col">
+      <h2>מה חסר</h2>
+      <table>
+        <tr><th></th><th>מה</th><th>אצל מי</th></tr>
+        <tr><td class="n">1</td><td><b>root עם שני access keys פעילים.</b> למחוק, אחרי בדיקה ב-CloudTrail מתי שימשו לאחרונה.</td><td class="who">בעל החשבון</td></tr>
+        <tr><td class="n">2</td><td><b>הגנה מפני מחיקה ל-RDS,</b> וניתוק מסד הנתונים מהסביבה הישנה שיצרה אותו. עד אז: לא לגעת בה.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">3</td><td><b>WAF על ה-API החי,</b> מדיניות TLS 1.2, וסגירת SSH שפתוח לכל העולם.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">4</td><td><b>DEBUG פעיל בפרודקשן</b> ו-CORS פתוח לכל origin.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">5</td><td><b>התחברות SMS:</b> קוד בן 4 ספרות בלי תפוגה ובלי הגבלת קצב. <b>הרשאות</b> שנכשלות לכיוון הפתוח.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">6</td><td><b>alarms ל-autoscaling</b> שמאזינים למטריקות אמיתיות, לפני שיא העונה.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">7</td><td><b>זמן שמירה ללוג של ה-Lambda</b> של המיילים, שרושם כתובות של נמענים.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">8</td><td><b>עותק Postgres 17</b> מ-blue/green מפברואר, ומסד Postgres 13 שלא בשימוש. למחוק אחרי אישור.</td><td class="who">Moveo, ואז הלקוח</td></tr>
+      </table>
+
+      <h2 style="margin-top:4px">להחלטה בפגישה</h2>
+      <div class="card amber">
+        <h3>א. מה מתקנים במערכת הקיימת לפני העונה</h3>
+        <ol>
+          <li>לתקן עכשיו את 1–5 בטבלה, כתיקונים קטנים בפרודקשן, ולהשאיר את השאר לשכתוב. <span class="rec">מומלץ</span></li>
+          <li>לא לגעת במערכת הקיימת, ולסמוך על כך שהשכתוב יעלה לפני העונה.</li>
+        </ol>
+      </div>
+      <div class="card amber">
+        <h3>ב. הפעלת ההתראות מחדש</h3>
+        שלושה צעדים ידניים: להחזיר את <code>sg.send</code> ב-<code>email-processor</code>, להחזיר את ה-handler של ה-Lambda של התזכורות, ו-<code>WHATSAPP_ENABLED=True</code>. צריך לקבוע מי ומתי.
+      </div>
+      <div class="card amber">
+        <h3>ג. שאלות פתוחות</h3>
+        של מי שתי כתובות ה-IP (ספק SpotNet) שיכולות להתחבר ישירות למסד הנתונים? והאם לחסום מבקרים מחוץ לישראל?
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · backend · ארכיטקטורה</span><span>פירוט מלא: softwareos/ecosystem/system-architecture.he.md</span></div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>זיכרון בסלון · frontend · ארכיטקטורה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="brief.css">
+<style>
+.flow { display: flex; align-items: stretch; direction: ltr; margin-top: 5px; }
+.flow .st { flex: 1; border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; }
+.flow .st b { display: block; font-size: 11.5px; color: var(--ink); }
+.flow .st span { display: block; font-size: 10px; color: var(--muted); line-height: 1.4; }
+.flow .st.end { background: var(--teal-soft); border-color: var(--teal); }
+.flow .ar { flex: none; width: 22px; display: flex; align-items: center; justify-content: center; color: #7C8699; font-size: 14px; }
+.flowlbl { font-size: 11px; font-weight: 600; color: var(--ink); margin-top: 7px; display: flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>ה-<em>frontend</em> של זיכרון בסלון — איך זה עובד</h1>
+      <p class="sub">האתר הציבורי: מה יושב ב-S3, מה רץ בדפדפן, ומה קורה כשמשתמש פותח את האתר</p>
+    </div>
+    <div class="meta"><b>סביבת production</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 1 מתוך 3</div>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1240 350" role="img" aria-label="ארכיטקטורת האתר הציבורי של זיכרון בסלון">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1B2A4A"/></marker>
+        <marker id="ar-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0F766E"/></marker>
+      </defs>
+      <line class="e" x1="20" y1="16" x2="50" y2="16"/><text class="s" x="58" y="20">exists and runs</text>
+      <line class="e r" x1="160" y1="16" x2="190" y2="16"/><text class="s" x="198" y="20">a risk</text>
+
+      <!-- edges -->
+      <path class="e" d="M260 110 H338" style="stroke:#0F766E" marker-end="url(#ar-t)"/>
+      <text class="lbl" x="299" y="102" text-anchor="middle" style="fill:#0F766E;font-weight:600">the site</text>
+      <path class="e" d="M530 100 H560 V80 H598" style="stroke:#0F766E" marker-end="url(#ar-t)"/>
+      <text class="lbl" x="575" y="72" text-anchor="middle" style="fill:#0F766E;font-weight:600">files</text>
+      <path class="e" d="M260 190 H938" marker-end="url(#ar)"/>
+      <text class="lbl" x="600" y="183" text-anchor="middle">/api/* · JWT · straight to the API, not through CloudFront</text>
+      <path class="e l" d="M260 262 H598" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+      <text class="lbl" x="430" y="255" text-anchor="middle">loaded straight into the browser</text>
+      <path class="e r" d="M1070 110 V148" style="stroke:#B4372C" marker-end="url(#ar)"/>
+
+      <!-- browser -->
+      <rect class="box" x="20" y="40" width="240" height="292" rx="10"/>
+      <text class="t" x="140" y="62" text-anchor="middle">דפדפן המשתמש</text>
+      <rect class="box main" x="40" y="74" width="200" height="80" rx="8"/>
+      <text class="t" x="140" y="98" text-anchor="middle" style="fill:#0F766E">Public app</text>
+      <text class="s" x="140" y="116" text-anchor="middle">React 16 · the code runs</text>
+      <text class="s" x="140" y="131" text-anchor="middle">here, in the user's browser</text>
+      <text class="s" x="140" y="174" text-anchor="middle">hosts · guests · witnesses</text>
+      <rect class="box" x="40" y="212" width="200" height="56" rx="8"/>
+      <text class="t" x="140" y="233" text-anchor="middle" style="font-size:12px">localStorage</text>
+      <text class="m" x="140" y="250" text-anchor="middle">persist:auth · token in quotes</text>
+      <text class="lbl r" x="140" y="296" text-anchor="middle">still contains an old copy</text>
+      <text class="lbl r" x="140" y="311" text-anchor="middle">of the staff admin at /admin</text>
+
+      <!-- hosting -->
+      <rect class="box" x="340" y="55" width="190" height="110" rx="8"/>
+      <text class="t" x="435" y="82" text-anchor="middle">CloudFront</text>
+      <text class="s" x="435" y="100" text-anchor="middle">app.zikaronbasalon.com</text>
+      <text class="s" x="435" y="116" text-anchor="middle">HTTPS · cache</text>
+      <text class="s" x="435" y="132" text-anchor="middle">WAF · managed rules</text>
+      <text class="s" x="435" y="148" text-anchor="middle">+ bot control</text>
+      <rect class="box main" x="600" y="28" width="250" height="112" rx="8"/>
+      <text class="t" x="725" y="52" text-anchor="middle" style="fill:#0F766E">S3 bucket · prod</text>
+      <text class="s" x="725" y="70" text-anchor="middle">static build of the fe repo</text>
+      <text class="s" x="725" y="86" text-anchor="middle">HTML · JavaScript · CSS · fonts · images</text>
+      <text class="s" x="725" y="106" text-anchor="middle" style="font-weight:600;fill:#1E2433">no server · nothing runs here</text>
+      <text class="lbl r" x="725" y="126" text-anchor="middle">public-access block is off</text>
+      <rect class="box" x="600" y="215" width="250" height="100" rx="8"/>
+      <text class="t" x="725" y="238" text-anchor="middle">Called from the browser</text>
+      <text class="s" x="725" y="256" text-anchor="middle">Google Maps + Places</text>
+      <text class="s" x="725" y="272" text-anchor="middle">Google sign-in · ipapi.co (country)</text>
+      <text class="s" x="725" y="288" text-anchor="middle">GTM / GA · nagich accessibility widget</text>
+
+      <!-- api -->
+      <rect class="grp" x="900" y="28" width="320" height="304" rx="12"/>
+      <text class="g" x="916" y="48">Elastic Beanstalk · backend (see backend doc)</text>
+      <rect class="box bad" x="960" y="66" width="220" height="44" rx="6"/>
+      <text class="lbl r" x="1070" y="93" text-anchor="middle">no CloudFront · no WAF in front</text>
+      <rect class="box" x="940" y="150" width="260" height="140" rx="8"/>
+      <text class="t" x="1070" y="178" text-anchor="middle">API · Django</text>
+      <text class="m" x="1070" y="196" text-anchor="middle">prod.zikaronbasalon.com</text>
+      <text class="s" x="1070" y="218" text-anchor="middle">business logic · permissions</text>
+      <text class="s" x="1070" y="234" text-anchor="middle">all access to data</text>
+      <text class="s" x="1070" y="256" text-anchor="middle">shared with the admin portal</text>
+      <text class="s" x="916" y="322">DNS for app. and prod. is at Wix</text>
+
+      <!-- markers -->
+      <circle class="dot t2" cx="530" cy="55" r="10"/><text class="dn" x="530" y="59" text-anchor="middle">1</text>
+      <circle class="dot t2" cx="240" cy="74" r="10"/><text class="dn" x="240" y="78" text-anchor="middle">2</text>
+      <circle class="dot r" cx="880" cy="190" r="10"/><text class="dn" x="880" y="194" text-anchor="middle">3</text>
+      <circle class="dot" cx="850" cy="215" r="10"/><text class="dn" x="850" y="219" text-anchor="middle">4</text>
+      <circle class="dot r" cx="20" cy="303" r="10"/><text class="dn" x="20" y="307" text-anchor="middle">6</text>
+    </svg>
+  </div>
+
+  <div class="flowlbl"><span class="num">5</span> איך הקבצים מגיעים לשם</div>
+  <div class="flow">
+    <div class="st"><b>GitHub · zikaron-basalon-fe</b><span>push to main / dev / staging</span></div>
+    <div class="ar">→</div>
+    <div class="st"><b>CodeBuild</b><span>old build image · npm ci && build<br>no tests · no checks</span></div>
+    <div class="ar">→</div>
+    <div class="st"><b>Build</b><span>static files<br>API URL baked in at build time</span></div>
+    <div class="ar">→</div>
+    <div class="st"><b>S3 bucket per environment</b><span>prod · dev · staging (CloudFront disabled)</span></div>
+    <div class="ar">→</div>
+    <div class="st end"><b>Lambda</b><span>clears the CloudFront cache</span></div>
+  </div>
+
+  <div class="notes">
+    <div><span class="num t2">1</span><span>הדפדפן מבקש את האתר מ-CloudFront, ו-CloudFront מביא את הקבצים מ-S3. אלה קבצים סטטיים: בצד שלנו לא רץ שום דבר.</span></div>
+    <div><span class="num">4</span><span>מפות, התחברות עם Google, זיהוי מדינה ואנליטיקס נקראים ישירות מהדפדפן. המפתחות שלהם, וגם ה-client secret של ה-API, נמצאים בקוד שכל מבקר מוריד.</span></div>
+    <div><span class="num t2">2</span><span>הקוד של האתר רץ בדפדפן של המשתמש, לא אצלנו. ה-token נשמר ב-localStorage, עטוף במירכאות.</span></div>
+    <div><span class="num">5</span><span>כל push בונה ומעלה ל-S3 של הסביבה. אין טסטים ואין בדיקות. כתובת ה-API נצרבת ב-build, ואם היא חסרה, האתר פונה בשקט ל-API של dev.</span></div>
+    <div><span class="num r">3</span><span>כל פעולה אמיתית הולכת ישירות ל-<code>prod.zikaronbasalon.com</code>, <b>לא דרך CloudFront</b>. ה-WAF של האתר לא מגן על ה-API.</span></div>
+    <div><span class="num r">6</span><span>באתר הציבורי עדיין יושב עותק ישן של פורטל הניהול (~12,000 שורות). כל איש צוות שמתחבר כאן יכול לפתוח אותו ב-<code>/admin</code>.</span></div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · frontend · ארכיטקטורה</span><span>נבדק מול החשבון החי ב-22.11.2026</span></div>
+</section>
+
+<!-- ============ PAGE 2 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>מה יש <em>באתר</em>, ואיך הקוד בנוי</h1>
+      <p class="sub">האזורים באתר לפי נתיב, מי נכנס לכל אחד, ומה קורה בתוך הקוד</p>
+    </div>
+    <div class="meta"><b>סביבת production</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 2 מתוך 3</div>
+  </div>
+
+  <div class="cols" style="grid-template-columns: 1.1fr 0.9fr;">
+    <div class="col">
+      <h2>האזורים באתר <small>components/Routes.tsx</small></h2>
+      <table>
+        <tr><th>נתיב</th><th>מה יש שם</th><th>מי נכנס</th></tr>
+        <tr><td class="k"><code>/</code> · <code>/forgotpassword/*</code></td><td>התחברות ואיפוס סיסמה</td><td>כולם</td></tr>
+        <tr><td class="k"><code>/getcodeviasms</code></td><td>התחברות בקוד SMS</td><td>כולם</td></tr>
+        <tr><td class="k"><code>/register/*</code></td><td>הרשמה, onboarding של מארח, אשף פתיחת סלון</td><td>כולם. הרשמת אורחים סגורה בגרסה החרדית</td></tr>
+        <tr><td class="k"><code>/site/host/:id/*</code></td><td>אזור המארח: כרטיסי סלון, בקשות אורחים, לשונית תוכן מותאם (קישור ל-Salon Builder)</td><td><span class="st-miss">אין guard</span>, נשען על ה-token</td></tr>
+        <tr><td class="k"><code>/site/guest/:id/*</code></td><td>הסלון והפרופיל של האורח</td><td><span class="st-miss">אין guard</span></td></tr>
+        <tr><td class="k"><code>/site/salonSearch/*</code></td><td>מפה, טבלה, מגירת סלון והרשמה</td><td><span class="st-miss">אין guard</span></td></tr>
+        <tr><td class="k"><code>/register/wanttotell</code></td><td>הרשמה עצמית של עדים</td><td><span class="st-bad">שבור</span> במערכת הקיימת</td></tr>
+        <tr><td class="k"><code>/admin/*</code></td><td>עותק ישן של פורטל הניהול</td><td>כל איש צוות מחובר</td></tr>
+        <tr><td class="k"><code>/accessibility</code></td><td>הצהרת נגישות, מדיניות פרטיות</td><td>כולם</td></tr>
+      </table>
+      <div class="card teal">
+        <h3>הגרסה החרדית, "זיכרון בבית"</h3>
+        אותו קוד, build נפרד עם הדגל <code>REACT_APP_ORTHODOX_MODE</code>. הוא מחליף טקסטים, כותרת ו-favicon, וסוגר את הרשמת האורחים. נבדק בכ-22 קומפוננטות ובטבלת ה-routes.
+      </div>
+    </div>
+
+    <div class="col">
+      <h2>איך הקוד בנוי בפנים <small>699 קבצים ב-src/</small></h2>
+<pre class="tree">src/
+├── index.tsx, App.tsx      Google OAuth · Redux · Router
+├── i18n.ts                 he by default, en, orthodox texts
+├── components/
+│   ├── Routes.tsx          the route table
+│   ├── Auth/               login, SMS login, reset, register
+│   ├── Hosts/              host area, salon cards, tabs
+│   ├── Guests/             salon search, map, registration
+│   ├── Admin/              OLD copy of the staff admin
+│   └── common/             inputs, modals, map, hooks
+├── store/
+│   ├── actions/ reducers/  one per domain
+│   ├── saga/               side effects, API calls
+│   ├── apiCalls/           axios functions per endpoint
+│   └── middleware/         API URL, token, refresh
+└── utils/                  routes, api URL, forms, flags</pre>
+      <div class="card amber">
+        <h3>שלוש דרכים לקרוא ל-API, ורק אחת מרעננת token</h3>
+        קריאות axios ישירות (התחברות, הרשמה), ה-instance המשותף (רוב המסכים, מרענן אחרי 401), ו-actions שנושאים בקשה. רק השני מרענן token, השאר פשוט נכשלים כשה-token פג.
+      </div>
+      <div class="card">
+        <h3>נבדק: הקוד התפצל מהפורטל</h3>
+        <b>442</b> קבצים קיימים באותו נתיב באתר ובפורטל הניהול, ו-<b>291</b> מהם כבר שונים, כולל ה-regex של הטלפון ושמירת ה-token. תיקון באחד לא מגיע לשני.
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · frontend · ארכיטקטורה</span><span>מקור: zikaron-basalon-fe (main)</span></div>
+</section>
+
+<!-- ============ PAGE 3 ============ -->
+<section class="page">
+  <div class="top">
+    <div>
+      <h1>מה מוגן, מה חסר, ו<em>לאן הולכים</em></h1>
+      <p class="sub">בשכתוב האתר עובר ל-Next.js. אלה הפערים היום, וההחלטות על האירוח</p>
+    </div>
+    <div class="meta"><b>סביבת production</b> · eu-west-3<br>22.11.2026 · Moveo · עמוד 3 מתוך 3</div>
+  </div>
+
+  <div class="cols" style="grid-template-columns: 0.9fr 1.1fr;">
+    <div class="col">
+      <h2>בקרות שכבר קיימות <small>נבדקו מול החשבון החי</small></h2>
+      <ul class="ctl">
+        <li><b>HTTPS ו-WAF.</b> CloudFront עם managed rules ו-bot control לפני האתר.</li>
+        <li><b>האתר הוא קבצים בלבד.</b> אין שרת ואין מערכת הפעלה לתחזק או לפרוץ.</li>
+        <li><b>תעודה בתוקף</b> לדומיין של האתר, עד 2027.</li>
+        <li><b>build אוטומטי לכל ענף</b> וניקוי cache אחרי כל העלאה.</li>
+        <li><b>אין בקבצים מידע של משתמשים.</b> הנתונים מגיעים רק מה-API, אחרי התחברות.</li>
+      </ul>
+      <div class="card teal">
+        <h3>מגבלה שכדאי להגיד מראש</h3>
+        כל מה שנמצא בקוד של האתר מגיע לכל מבקר. מפתח, secret או בדיקת הרשאה שיושבים שם הם ציבוריים בפועל. ההגנה האמיתית יכולה להיות רק ב-API.
+      </div>
+      <div class="card">
+        <h3>מה לא תלוי בהחלטת האירוח</h3>
+        כתובת API בלי ברירת מחדל ל-dev, בלי secrets בקוד הלקוח, טסטים ובדיקות בכל build, והסרת העותק הישן של הניהול. כל אלה נכנסים לשכתוב בכל מקרה.
+      </div>
+    </div>
+
+    <div class="col">
+      <h2>מה חסר</h2>
+      <table>
+        <tr><th></th><th>מה</th><th>אצל מי</th></tr>
+        <tr><td class="n">1</td><td><b>נפילה שקטה ל-API של dev</b> אם ה-build לא מקבל את כתובת ה-API.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">2</td><td><b>client secret ומפתח Google Maps בקוד הלקוח.</b> להגביל את המפתח לדומיינים ול-APIs, ולהוציא את ה-secret לשרת.</td><td class="who">Moveo, והלקוח ב-Google</td></tr>
+        <tr><td class="n">3</td><td><b>העותק הישן של הניהול</b> נגיש ב-<code>/admin</code>. להסיר.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">4</td><td><b>אין guard על <code>/site/*</code>.</b> כל דף בודק בעצמו.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">5</td><td><b>חסימת הגישה הציבורית כבויה</b> ב-buckets של האתר. לוודא שרק CloudFront קורא מהם.</td><td class="who">Moveo</td></tr>
+        <tr><td class="n">6</td><td><b>אין טסטים, image ישן ל-build,</b> ו-staging כבוי.</td><td class="who">Moveo</td></tr>
+      </table>
+
+      <h2 style="margin-top:4px">להחלטה</h2>
+      <div class="card amber">
+        <h3>א. איפה מארחים את האתר ואת פורטל הניהול בשכתוב (Next.js)</h3>
+        <ol>
+          <li>AWS Amplify לשניהם. כבר בשימוש לפורטל, תומך ב-server rendering של Next.js וב-build ישר מ-GitHub. <span class="rec">מומלץ</span></li>
+          <li>S3 + CloudFront עם static export, כמו היום. פשוט וזול, אבל בלי server components ובלי SSR.</li>
+          <li>containers ב-ECS מאחורי CloudFront. שליטה מלאה, אבל עוד image לתחזק ולסרוק בכל סביבה.</li>
+        </ol>
+      </div>
+      <div class="card amber">
+        <h3>ב. האם ה-API נכנס מאחורי CloudFront ו-WAF</h3>
+        היום הדפדפן פונה ל-API ישירות. אם ה-API יעבור מאחורי אותו CloudFront (<code>/api/*</code>), ה-WAF יגן גם עליו ויהיה דומיין אחד לאתר ול-API.
+      </div>
+      <div class="card amber">
+        <h3>ג. חסימת מבקרים מחוץ לישראל</h3>
+        האתר בודק מדינה דרך ipapi.co ומצפה ל-HTTP 450 מה-API, שאף אחד לא שולח. לשמור חסימה בשכתוב, או לוותר?
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Zikaron BaSalon · frontend · ארכיטקטורה</span><span>פירוט מלא: softwareos/ecosystem/system-architecture.he.md · סעיף 4</span></div>
+</section>
+
+</body>
+</html>
